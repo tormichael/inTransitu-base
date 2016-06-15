@@ -1,0 +1,28 @@
+BEGIN TRANSACTION;
+CREATE TABLE "itWord" (
+	`wrdId`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`wrdDicId`	INTEGER NOT NULL,
+	`wrdValue`	TEXT NOT NULL,
+	`wrdImageR`	TEXT,
+	`wrdVoiceR`	TEXT
+);
+CREATE TABLE "itTranslate" (
+	`trnSrc`	INTEGER NOT NULL,
+	`trnTgt`	INTEGER NOT NULL,
+	`trnTrans`	TEXT,
+	PRIMARY KEY(trnSrc,trnTgt)
+);
+CREATE TABLE "itLanguage" (
+	`lngId`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`lngName`	TEXT NOT NULL,
+	`lngNativeName`	TEXT
+);
+CREATE TABLE "itDictionary" (
+	`dicId`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`dicLngId`	INTEGER NOT NULL,
+	`dicName`	TEXT NOT NULL,
+	`dicNote`	TEXT,
+	`dicCodePage`	TEXT,
+	`dicFont`	TEXT
+);
+COMMIT;
