@@ -96,17 +96,24 @@ public class fFirst extends JFrame
 		//  TAB DB manager:
 		//
 
-		GridBagLayout gblDBMan = new GridBagLayout();
-		JPanel pnlDBMan = new JPanel(gblDBMan);
-			JLabel lbl = new JLabel(_it.getString("Label.fFirst.DBM.Command"));
-			gblDBMan.setConstraints(lbl, new GBC(0,0).setIns(2).setAnchor(GBC.WEST));
+		GridBagLayout gblMain = new GridBagLayout();
+		JPanel pnlDBMan = new JPanel(gblMain);
+			JLabel lbl = new JLabel(_it.getString("fFirst.Label.Filter_Src"));
+			gblMain.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
 			pnlDBMan.add(lbl);
 			_cboFilterSrc = new JComboBox<CodeText>();
-			gblDBMan.setConstraints(_cboFilterSrc, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			gblMain.setConstraints(_cboFilterSrc, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
 			pnlDBMan.add(_cboFilterSrc);
+			lbl = new JLabel(_it.getString("fFirst.Label.Filter_Tgt"));
+			gblMain.setConstraints(lbl, new GBC(2,0).setIns(2)); //.setAnchor(GBC.WEST));
+			pnlDBMan.add(lbl);
+			_cboFilterTgt = new JComboBox<CodeText>();
+			gblMain.setConstraints(_cboFilterTgt, new GBC(3,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			pnlDBMan.add(_cboFilterTgt);
+			
 			_cmdDBMExecute = new JButton(actDBMExecute);
 			_cmdDBMExecute.setText(_it.getString("Button.fFirst.DBM.Execute"));
-			gblDBMan.setConstraints(_cmdDBMExecute, new GBC(2,0).setIns(2));
+			gblMain.setConstraints(_cmdDBMExecute, new GBC(2,0).setIns(2));
 			pnlDBMan.add(_cmdDBMExecute);
 //			_lblDBMCondition = new JLabel(_it.getString("Label.fFirst.DBM.Condition"));
 //			gblDBMan.setConstraints(_lblDBMCondition, new GBC(0,1).setIns(2).setAnchor(GBC.WEST));
@@ -117,7 +124,7 @@ public class fFirst extends JFrame
 			_tabDBMResult = new JTable();
 			_pnlDBMResult = new JScrollPane(_tabDBMResult);
 			_pnlDBMResult.setBorder(BorderFactory.createTitledBorder(_it.getString("TitledBorder.fFirst.DBM.Result")));
-			gblDBMan.setConstraints(_pnlDBMResult, new GBC(0,2).setGridSpan(3, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			gblMain.setConstraints(_pnlDBMResult, new GBC(0,2).setGridSpan(3, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
 			pnlDBMan.add(_pnlDBMResult);
 		//_splvDBMan = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, _treeDB, pnlDBMan);
 		//_tp.addTab(_it.getString("TabbedPane.fFirst.DBMan"), _splvDBMan);
