@@ -14,12 +14,12 @@ import JCommonTools.DB.DBWork;
 public class inTransitu 
 {
 
-	public final static String FN_RESOURCE_TEXT = "water-text";
-	public final static String FN_RESOURCE_SQL = "water-sql";
+	public final static String FN_RESOURCE_TEXT = "inTransitu-text";
+	public final static String FN_RESOURCE_SQL = "inTransitu-sql";
 	
 	public final static String FD_RESOURCE_ICONS = "img/";
 
-	public final static String PREFERENCE_PATH = "/water";
+	public final static String PREFERENCE_PATH = "/inTransitu";
 	
 	//public final static String COLUMN_NAME_ROW_HASH = "id_row_hash";
 
