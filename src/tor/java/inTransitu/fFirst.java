@@ -30,6 +30,7 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -96,12 +97,13 @@ public class fFirst extends JFrame
 		
 		JToolBar bar = new JToolBar();
 		add(bar, BorderLayout.NORTH);
-		//actLoadCSVDef.putValue(Action.SMALL_ICON, _wld.getImageIcon("open.png"));
-		//bar.add(actLoadCSVDef);
-		//actSaveCSVDef.putValue(Action.SMALL_ICON, _wld.getImageIcon("save.png"));
-		//bar.add(actSaveCSVDef);
-		//actSaveAsCSVDef.putValue(Action.SMALL_ICON, _wld.getImageIcon("save-as.png"));
-		//bar.add(actSaveAsCSVDef);
+		actAddTrans.putValue(Action.SMALL_ICON, _it.getImageIcon("add.png"));
+		bar.add(actAddTrans);
+		actEditTrans.putValue(Action.SMALL_ICON, _it.getImageIcon("edit.png"));
+		bar.add(actEditTrans);
+		actRemoveTrans.putValue(Action.SMALL_ICON, _it.getImageIcon("trash.png"));
+		bar.add(actRemoveTrans);
+		bar.addSeparator();
 		actSetDBConnection.putValue(Action.SMALL_ICON, _it.getImageIcon("dbconnection.png"));
 		bar.add(actSetDBConnection);
 		bar.addSeparator();
@@ -244,6 +246,39 @@ public class fFirst extends JFrame
 		}
 	};
 
+	Action actAddTrans = new AbstractAction() 
+	{
+		
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			fWord2Word dlg = new fWord2Word(_it);
+			dlg.setVisible(true);
+			
+		}
+	};
+	
+	Action actEditTrans = new AbstractAction() 
+	{
+		
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			fWord2Word dlg = new fWord2Word(_it);
+			dlg.setVisible(true);
+			
+		}
+	};
+	
+	Action actRemoveTrans = new AbstractAction() 
+	{
+		
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+		}
+	};
+	
 	private void _fillCbo(JComboBox<CodeText> aCbo)
 	{
 		Statement sqlCmd = null;
@@ -284,14 +319,30 @@ public class fFirst extends JFrame
 			Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			//sqlCmd = _it.get_wdb().getConn().createStatement();
 			int srcCode = ((CodeText)_cboFilterSrc.getSelectedItem()).getCode();
-			int tgtCode = ((CodeText)_cboFilterSrc.getSelectedItem()).getCode();
+			int tgtCode = ((CodeText)_cboFilterTgt.getSelectedItem()).getCode();
 			String strSelect = String.format(_it.getSQL("Select.WordTrans2Dic"), srcCode, tgtCode);
 			rs = stm.executeQuery(strSelect);
-			tmResult tm = new tmResult(rs);
+			//tmResult tm = new tmResult(rs);
+
+			String[] cols = new String[rs.getMetaData().getColumnCount()];
+			for (int ii=0; ii < rs.getMetaData().getColumnCount(); ii++)
+				cols[ii] = rs.getMetaData().getColumnLabel(ii+1);
+			DefaultTableModel tm = new DefaultTableModel(cols, 0);
+			//tm.addColumn("1");
+			//tm.addColumn("2");
+			//tm.addColumn("3");
+			while (rs.next())
+			{
+				for (int ii=0; ii < cols.length; ii++)
+					cols[ii] = rs.getString(ii+1);
+				tm.addRow(cols);
+				//tm.addRow(new Object[] {rs.getString(1), rs.getString(2), rs.getString(3)});
+			}
+			
 			_tabResult.setModel(tm);
 			_tabResult.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			//infoNewLine(_wld.getString("Text.Message.ExecutedCommand")); 
-			//rs.close();
+			rs.close();
 		}
 		catch (Exception ex)
 		{
@@ -299,14 +350,14 @@ public class fFirst extends JFrame
 		}
 		finally
 		{
-//			try
-//			{
-//				if (rs != null)
-//					rs.close();
-//				if (sqlCmd != null)
-//					sqlCmd.close();
-//			}
-//			catch (Exception ex){}
+			try
+			{
+				if (rs != null)
+					rs.close();
+				if (sqlCmd != null)
+					sqlCmd.close();
+			}
+			catch (Exception ex){}
 		}
 	}
 
@@ -315,7 +366,7 @@ public class fFirst extends JFrame
 	{
 		_it.get_wdb().LoadDBConnectioParam2Reg(inTransitu.PREFERENCE_PATH);
 
-		Preferences node = Preferences.userRoot().node(inTransitu.PREFERENCE_PATH+"/CSV" );
+		Preferences node = Preferences.userRoot().node(inTransitu.PREFERENCE_PATH+"/fFirst" );
 		AsRegister.LoadFrameStateSizeLocation(node, this);
 		_splVPanel.setDividerLocation(node.getInt("SplitDividerLocation", 100));
 		//_splvDBMan.setDividerLocation(node.getInt("SplitDBMan", 100));
@@ -334,7 +385,7 @@ public class fFirst extends JFrame
 	
 	private void SaveProgramPreference()
 	{
-		Preferences node = Preferences.userRoot().node(inTransitu.PREFERENCE_PATH+"/CSV" );
+		Preferences node = Preferences.userRoot().node(inTransitu.PREFERENCE_PATH+"/fFirst" );
 		
 		AsRegister.SaveFrameStateSizeLocation(node, this);
 		

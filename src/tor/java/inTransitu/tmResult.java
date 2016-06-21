@@ -1,6 +1,9 @@
 package tor.java.inTransitu;
 
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
 import javax.swing.table.AbstractTableModel;
 
 public class tmResult  extends AbstractTableModel 
@@ -12,14 +15,29 @@ public class tmResult  extends AbstractTableModel
 		public String Trans;
 	};
 	
-	private Stri <ResCol> _rsData;
-	//private ResultSet _rsCol;
+	//private ArrayList<ResCol> _rsData;
+	private ResultSet _rsData;
+	
+	
 	
 	public tmResult(ResultSet aRSData) //, ResultSet aRSCol)
 	{
 		_rsData = aRSData;
 		//_rsCol = aRSCol;
 	}
+
+//	public ArrayList<ResCol> get_rsData() {
+//		return _rsData;
+//	}
+//
+//	public void set_rsData(ArrayList<ResCol> _rsData) {
+//		this._rsData = _rsData;
+//	}
+//
+//	public tmResult(ArrayList<ResCol> _rsData) {
+//		super();
+//		this._rsData = _rsData;
+//	}
 
 	@Override
 	public int getRowCount() 
