@@ -1,12 +1,18 @@
 package tor.java.inTransitu;
 
-import java.sql.ResultSet;
 
 import javax.swing.table.AbstractTableModel;
 
 public class tmResult  extends AbstractTableModel 
 {
-	private ResultSet _rsData;
+	public class ResCol
+	{
+		public String Src;
+		public String Tgt;
+		public String Trans;
+	};
+	
+	private Stri <ResCol> _rsData;
 	//private ResultSet _rsCol;
 	
 	public tmResult(ResultSet aRSData) //, ResultSet aRSCol)

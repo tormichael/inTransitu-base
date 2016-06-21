@@ -58,6 +58,7 @@ public class fFirst extends JFrame
 	private JSplitPane 			_splVPanel;
 	//private JSplitPane 			_splvDBMan;
 	
+	
 	private void infoNewLine(String aText)
 	{
 		if (aText == null)
