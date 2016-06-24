@@ -1,6 +1,7 @@
 package tor.java.inTransitu;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -15,6 +16,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -24,6 +26,11 @@ import JCommonTools.GBC;
 
 public class fWord2Word  extends JFrame
 {
+	public final static String BUTTON_PLUS= "+";
+	public final static String BUTTON_MINUS= "-";
+	public final static String BUTTON_MULTYLINE= "#";
+	public final static String BUTTON_ONELINE= "0";
+
 	private inTransitu _it;
 	
 	private JComboBox<CodeText> _cboFilterSrc;
@@ -32,6 +39,7 @@ public class fWord2Word  extends JFrame
 	private JTextField _txtTranscription;
 	private GridBagLayout _gblTgt;
 	private ArrayList<JComboBox<CodeText>> _arCboWordTgt;
+	private JScrollPane _spWordTgt;
 	private JTextArea _txtWordsTgt;
 	private JButton _cmdWordAdd;
 	private JButton _cmdWordMultyLine;
@@ -71,7 +79,10 @@ public class fWord2Word  extends JFrame
 				_txtTranscription = new JTextField();
 				gblSrc.setConstraints(_txtTranscription, new GBC(0,2).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0)); //.setAnchor(GBC.WEST));
 				pnlSrc.add(_txtTranscription);
-			gblMain.setConstraints(pnlSrc, new GBC(0,2).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 1.0));
+//				JPanel pnlEmpty = new JPanel();
+//				gblSrc.setConstraints(pnlEmpty, new GBC(0,3).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0)); //.setAnchor(GBC.WEST));
+//				pnlSrc.add(pnlEmpty);
+			gblMain.setConstraints(pnlSrc, new GBC(0,2).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
 			pnlMain.add(pnlSrc);
 			///// RIGHT //////////////////////////////////////////////////////////////
 			_gblTgt = new GridBagLayout();
@@ -83,22 +94,25 @@ public class fWord2Word  extends JFrame
 				_gblTgt.setConstraints(cbo, new GBC(0,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0)); //.setAnchor(GBC.WEST));
 				_pnlTgt.add(cbo);
 				_cmdWordAdd = new JButton(actWordAdd);
-				_cmdWordAdd.setText("+");
+				_cmdWordAdd.setText(BUTTON_PLUS);
 				_gblTgt.setConstraints(_cmdWordAdd, new GBC(1,0).setIns(2)); //.setAnchor(GBC.WEST));
 				_pnlTgt.add(_cmdWordAdd);
 				_cmdWordMultyLine = new JButton(actWordMultyLine);
-				_cmdWordMultyLine.setText("#");
+				_cmdWordMultyLine.setText(BUTTON_MULTYLINE);
 				_gblTgt.setConstraints(_cmdWordMultyLine, new GBC(3,0).setIns(2)); //.setAnchor(GBC.WEST));
 				_pnlTgt.add(_cmdWordMultyLine);
-			gblMain.setConstraints(_pnlTgt, new GBC(1,2).setIns(2).setGridSpan(2, 1).setFill(GBC.HORIZONTAL).setWeight(1.0, 1.0));
+			gblMain.setConstraints(_pnlTgt, new GBC(1,2).setIns(2).setGridSpan(2, 1).setFill(GBC.BOTH).setWeight(1.0, 1.0));
 			pnlMain.add(_pnlTgt);
+
+			_txtWordsTgt = new JTextArea();
+			_spWordTgt = new JScrollPane(_txtWordsTgt);
 			//////////////////////////////////////////////////////////////////////////
 			_cmdSave = new JButton(actSave);
-			_cmdSave.setText(_it.getString("fWord2Word.Button.Save"));
+			_cmdSave.setText(_it.getString("common.Button.Save"));
 			gblMain.setConstraints(_cmdSave, new GBC(1,3).setIns(2));
 			pnlMain.add(_cmdSave);
 			_cmdCancel = new JButton(actCancel);
-			_cmdCancel.setText(_it.getString("fWord2Word.Button.Cancel"));
+			_cmdCancel.setText(_it.getString("common.Button.Cancel"));
 			gblMain.setConstraints(_cmdCancel, new GBC(2,3).setIns(2));
 			pnlMain.add(_cmdCancel);
 			
@@ -124,7 +138,10 @@ public class fWord2Word  extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent arg0) 
 		{
-			// TODO Auto-generated method stub
+			JComboBox<CodeText> cbo = new JComboBox<CodeText>();
+			_arCboWordTgt.add(cbo);
+			_gblTgt.setConstraints(cbo, new GBC(0,_arCboWordTgt.size()-1).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0)); //.setAnchor(GBC.WEST));
+			_pnlTgt.add(cbo);		
 			
 		}
 	};
@@ -135,12 +152,32 @@ public class fWord2Word  extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent arg0) 
 		{
+			if (_cmdWordMultyLine.getText().equals(BUTTON_MULTYLINE))
+			{
 			JComboBox<CodeText> cbo = _arCboWordTgt.get(0);
+			_gblTgt.removeLayoutComponent(cbo);
 			_pnlTgt.remove(cbo);
-			_txtWordsTgt = new JTextArea();
-			_gblTgt.setConstraints(_txtWordsTgt, new GBC(0,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 1.0)); //.setAnchor(GBC.WEST));
-			_pnlTgt.add(_txtWordsTgt);
+			_gblTgt.setConstraints(_spWordTgt, new GBC(0,0).setIns(2).setAnchor(GBC.CENTER).setFill(GBC.BOTH).setWeight(1.0, 1.0)); //.setAnchor(GBC.WEST));
+			_pnlTgt.add(_spWordTgt);
 			_cmdWordAdd.setEnabled(false);
+			//Dimension dim = new Dimension(_txtWordsTgt.getMinimumSize().width, 500);
+			//sp.setPreferredSize(dim);
+			_cmdWordMultyLine.setText(BUTTON_ONELINE);
+			}
+			else
+			{
+				_gblTgt.removeLayoutComponent(_spWordTgt);
+				_pnlTgt.remove(_spWordTgt);
+				JComboBox<CodeText> cbo = _arCboWordTgt.get(0);
+				_gblTgt.setConstraints(cbo, new GBC(0,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0)); //.setAnchor(GBC.WEST));
+				_pnlTgt.add(cbo);
+				_cmdWordAdd.setEnabled(true);
+				_cmdWordMultyLine.setText(BUTTON_MULTYLINE);
+			}
+			fWord2Word.this.revalidate();
+			fWord2Word.this.repaint();
+			//_pnlTgt.revalidate();
+			
 		}
 	};
 	

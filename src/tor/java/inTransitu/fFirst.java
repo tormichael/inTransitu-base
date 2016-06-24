@@ -252,7 +252,7 @@ public class fFirst extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			fWord2Word dlg = new fWord2Word(_it);
+			fWord2Words dlg = new fWord2Words(_it);
 			dlg.setVisible(true);
 			
 		}
@@ -264,7 +264,7 @@ public class fFirst extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			fWord2Word dlg = new fWord2Word(_it);
+			fWord dlg = new fWord(_it);
 			dlg.setVisible(true);
 			
 		}
