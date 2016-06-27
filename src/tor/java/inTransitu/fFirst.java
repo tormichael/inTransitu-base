@@ -48,16 +48,17 @@ public class fFirst extends JFrame
 	private inTransitu _it;
 
 	private JTabbedPane 		_tp;
-	private JComboBox<CodeText> _cboFilterSrc;
-	private JComboBox<CodeText> _cboFilterTgt;
-	private JTable				_tabResult;
+	private JComboBox<CodeText> _cboTransFilterSrc;
+	private JComboBox<CodeText> _cboTransFilterTgt;
+	private JComboBox<CodeText> _cboDicFilter;
+	private JTable				_tabTrans;
+	private JTable				_tabDic;
+	private JTable				_tabLng;
 	private JTextArea 			_txtStatus;
-	//private JTextField			_txtDBMCondition;
-	private JButton				_cmdFilterApply;
-	//private JLabel				_lblDBMCondition;
-	private JScrollPane 		_pnResult;
+	private JButton				_cmdTransFilterApply;
+	private JButton				_cmdDicFilterApply;
+	private JScrollPane 		_pnTrans;
 	private JSplitPane 			_splVPanel;
-	//private JSplitPane 			_splvDBMan;
 	
 	
 	private void infoNewLine(String aText)
@@ -110,42 +111,60 @@ public class fFirst extends JFrame
 
 		_tp = new JTabbedPane();
 		//
-		//  TAB DB manager:
+		//  TAB Translate:
 		//
-
-		GridBagLayout gblMain = new GridBagLayout();
-		JPanel pnlMain = new JPanel(gblMain);
-			JLabel lbl = new JLabel(_it.getString("fFirst.Label.Filter_Src"));
-			gblMain.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
-			pnlMain.add(lbl);
-			_cboFilterSrc = new JComboBox<CodeText>();
-			gblMain.setConstraints(_cboFilterSrc, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
-			pnlMain.add(_cboFilterSrc);
-			lbl = new JLabel(_it.getString("fFirst.Label.Filter_Tgt"));
-			gblMain.setConstraints(lbl, new GBC(2,0).setIns(2)); //.setAnchor(GBC.WEST));
-			pnlMain.add(lbl);
-			_cboFilterTgt = new JComboBox<CodeText>();
-			gblMain.setConstraints(_cboFilterTgt, new GBC(3,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
-			pnlMain.add(_cboFilterTgt);
+		GridBagLayout gblTrans = new GridBagLayout();
+		JPanel pnlTrans = new JPanel(gblTrans);
+			JLabel lbl = new JLabel(_it.getString("fFirst.Label.Trans.Filter_Src"));
+			gblTrans.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
+			pnlTrans.add(lbl);
+			_cboTransFilterSrc = new JComboBox<CodeText>();
+			gblTrans.setConstraints(_cboTransFilterSrc, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			pnlTrans.add(_cboTransFilterSrc);
+			lbl = new JLabel(_it.getString("fFirst.Label.Trans.Filter_Tgt"));
+			gblTrans.setConstraints(lbl, new GBC(2,0).setIns(2)); //.setAnchor(GBC.WEST));
+			pnlTrans.add(lbl);
+			_cboTransFilterTgt = new JComboBox<CodeText>();
+			gblTrans.setConstraints(_cboTransFilterTgt, new GBC(3,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			pnlTrans.add(_cboTransFilterTgt);
+			_cmdTransFilterApply = new JButton(actFilterApply);
+			_cmdTransFilterApply.setText(_it.getString("fFirst.Button.FilterApply"));
+			gblTrans.setConstraints(_cmdTransFilterApply, new GBC(4,0).setIns(2));
+			pnlTrans.add(_cmdTransFilterApply);
+			_tabTrans = new JTable();
+			_pnTrans = new JScrollPane(_tabTrans);
+			_pnTrans.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
+			gblTrans.setConstraints(_pnTrans, new GBC(0,1).setGridSpan(5, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			pnlTrans.add(_pnTrans);
+		_tp.addTab(_it.getString("fFirst.TabbedPane.Translate"), pnlTrans);
+		///
+		/// Tab Dictionary
+		// 
+		GridBagLayout gblDic = new GridBagLayout();
+		JPanel pnlDic = new JPanel(gblDic);
+			lbl = new JLabel(_it.getString("fFirst.Label.Dic.Filter"));
+			gblDic.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
+			pnlDic.add(lbl);
+			_cboDicFilter = new JComboBox<CodeText>();
+			gblDic.setConstraints(_cboDicFilter, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			pnlDic.add(_cboDicFilter);
+			_cmdDicFilterApply = new JButton(actDicFilterApply);
+			_cmdDicFilterApply.setText(_it.getString("fFirst.Button.FilterApply"));
+			gblDic.setConstraints(_cmdDicFilterApply, new GBC(2,0).setIns(2));
+			pnlDic.add(_cmdDicFilterApply);
+			_tabDic = new JTable();
+			JScrollPane scpDic = new JScrollPane(_tabDic);
+			scpDic.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
+			gblDic.setConstraints(scpDic, new GBC(0,1).setGridSpan(3, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			pnlDic.add(scpDic);
+		_tp.addTab(_it.getString("fFirst.TabbedPane.Dictionary"), pnlDic);
+		///
+		/// Tab Language
+		// 
+		GridBagLayout gblLng = new GridBagLayout();
+		JPanel pnlLng = new JPanel(gblTrans);
+		_tp.addTab(_it.getString("fFirst.TabbedPane.Language"), pnlLng);
 			
-			_cmdFilterApply = new JButton(actFilterApply);
-			_cmdFilterApply.setText(_it.getString("fFirst.Button.FilterApply"));
-			gblMain.setConstraints(_cmdFilterApply, new GBC(4,0).setIns(2));
-			pnlMain.add(_cmdFilterApply);
-//			_lblDBMCondition = new JLabel(_it.getString("Label.fFirst.DBM.Condition"));
-//			gblDBMan.setConstraints(_lblDBMCondition, new GBC(0,1).setIns(2).setAnchor(GBC.WEST));
-//			pnlDBMan.add(_lblDBMCondition);
-//			_txtDBMCondition = new JTextField();
-//			gblDBMan.setConstraints(_txtDBMCondition, new GBC(1,1).setGridSpan(2, 1).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
-//			pnlDBMan.add(_txtDBMCondition);
-			_tabResult = new JTable();
-			_pnResult = new JScrollPane(_tabResult);
-			_pnResult.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
-			gblMain.setConstraints(_pnResult, new GBC(0,1).setGridSpan(5, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
-			pnlMain.add(_pnResult);
-		//_splvDBMan = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, _treeDB, pnlDBMan);
-		//_tp.addTab(_it.getString("TabbedPane.fFirst.DBMan"), _splvDBMan);
-			_tp.addTab(_it.getString("fFirst.TabbedPane.Main"), pnlMain);
 
 
 		//
@@ -165,24 +184,24 @@ public class fFirst extends JFrame
 //		_cboFilterSrc.addItem(new CodeText(1, _it.getString("Text.DBM.Command.SELECT")));
 //		_cboFilterSrc.addItem(new CodeText(2, _it.getString("Text.DBM.Command.DeleteRows")));
 //		_cboFilterSrc.addItem(new CodeText(3, _it.getString("Text.DBM.Command.CreateTable")));
-		_cboFilterSrc.addActionListener(new ActionListener() 
+		_cboTransFilterSrc.addActionListener(new ActionListener() 
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if (((CodeText)_cboFilterSrc.getSelectedItem()).getCode() == 3)
+				if (((CodeText)_cboTransFilterSrc.getSelectedItem()).getCode() == 3)
 				{
 					//_lblDBMCondition.setText(_it.getString("Label.fCSV.DBM.TableName"));
 					//_pnResult.setBorder(BorderFactory.createTitledBorder(_it.getString("TitledBorder.fCSV.DBM.ColDef")));
 					//_tabDBMResult.setModel(new tmDBMColDef(_wld));
-					_tabResult.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+					_tabTrans.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				}
 				else
 				{
 					//_lblDBMCondition.setText(_it.getString("Label.fFirst.DBM.Condition"));
 					//_pnResult.setBorder(BorderFactory.createTitledBorder(_it.getString("TitledBorder.fCSV.DBM.Result")));
 					//_tabDBMResult.setModel(new tmDBMResult(null));
-					_tabResult.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+					_tabTrans.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				}
 			}
 		});
@@ -211,8 +230,8 @@ public class fFirst extends JFrame
 
 	private void _load()
 	{
-		_fillCbo(_cboFilterSrc);
-		_fillCbo(_cboFilterTgt);
+		_fillCbo(_cboTransFilterSrc);
+		_fillCbo(_cboTransFilterTgt);
 	}
 	
 	Action actSetDBConnection = new AbstractAction() 
@@ -238,6 +257,15 @@ public class fFirst extends JFrame
 	};
 	
 	Action actFilterApply = new AbstractAction() 
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			_doResult();
+		}
+	};
+
+	Action actDicFilterApply = new AbstractAction() 
 	{
 		@Override
 		public void actionPerformed(ActionEvent e) 
@@ -318,8 +346,8 @@ public class fFirst extends JFrame
 		{
 			Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			//sqlCmd = _it.get_wdb().getConn().createStatement();
-			int srcCode = ((CodeText)_cboFilterSrc.getSelectedItem()).getCode();
-			int tgtCode = ((CodeText)_cboFilterTgt.getSelectedItem()).getCode();
+			int srcCode = ((CodeText)_cboTransFilterSrc.getSelectedItem()).getCode();
+			int tgtCode = ((CodeText)_cboTransFilterTgt.getSelectedItem()).getCode();
 			String strSelect = String.format(_it.getSQL("Select.WordTrans2Dic"), srcCode, tgtCode);
 			rs = stm.executeQuery(strSelect);
 			//tmResult tm = new tmResult(rs);
@@ -339,8 +367,8 @@ public class fFirst extends JFrame
 				//tm.addRow(new Object[] {rs.getString(1), rs.getString(2), rs.getString(3)});
 			}
 			
-			_tabResult.setModel(tm);
-			_tabResult.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			_tabTrans.setModel(tm);
+			_tabTrans.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			//infoNewLine(_wld.getString("Text.Message.ExecutedCommand")); 
 			rs.close();
 		}
