@@ -15,10 +15,12 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -30,6 +32,8 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -51,14 +55,17 @@ public class fFirst extends JFrame
 	private JComboBox<CodeText> _cboTransFilterSrc;
 	private JComboBox<CodeText> _cboTransFilterTgt;
 	private JComboBox<CodeText> _cboDicFilter;
-	private JTable				_tabTrans;
-	private JTable				_tabDic;
-	private JTable				_tabLng;
+	//private JTable					_tabTrans;
+	private JList<CodeText> _lstTransSrc;
+	private DefaultListModel<CodeText> _lstModel;
+	private JTable					_tabWrd;
+	private JTable					_tabDic;
+	private JTable					_tabLng;
+	private JTextArea			_txtTransTgt;
 	private JTextArea 			_txtStatus;
-	private JButton				_cmdTransFilterApply;
-	private JButton				_cmdDicFilterApply;
-	private JScrollPane 		_pnTrans;
 	private JSplitPane 			_splVPanel;
+	private JSplitPane 			_splHPnlTrans;
+	
 	
 	
 	private void infoNewLine(String aText)
@@ -105,6 +112,9 @@ public class fFirst extends JFrame
 		actRemoveTrans.putValue(Action.SMALL_ICON, _it.getImageIcon("trash.png"));
 		bar.add(actRemoveTrans);
 		bar.addSeparator();
+		actFilterApply.putValue(Action.SMALL_ICON, _it.getImageIcon("exec.png"));
+		bar.add(actFilterApply);
+		bar.addSeparator();
 		actSetDBConnection.putValue(Action.SMALL_ICON, _it.getImageIcon("dbconnection.png"));
 		bar.add(actSetDBConnection);
 		bar.addSeparator();
@@ -113,56 +123,68 @@ public class fFirst extends JFrame
 		//
 		//  TAB Translate:
 		//
-		GridBagLayout gblTrans = new GridBagLayout();
-		JPanel pnlTrans = new JPanel(gblTrans);
+		GridBagLayout gblTransSrc = new GridBagLayout();
+		JPanel pnlTransSrc = new JPanel(gblTransSrc);
 			JLabel lbl = new JLabel(_it.getString("fFirst.Label.Trans.Filter_Src"));
-			gblTrans.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
-			pnlTrans.add(lbl);
+			gblTransSrc.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
+			pnlTransSrc.add(lbl);
 			_cboTransFilterSrc = new JComboBox<CodeText>();
-			gblTrans.setConstraints(_cboTransFilterSrc, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
-			pnlTrans.add(_cboTransFilterSrc);
+			gblTransSrc.setConstraints(_cboTransFilterSrc, new GBC(0,1).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			pnlTransSrc.add(_cboTransFilterSrc);
+//			_tabTrans = new JTable();
+			_lstModel = new DefaultListModel<CodeText>();
+			_lstTransSrc = new JList<>(_lstModel);
+			JScrollPane scPnl = new JScrollPane(_lstTransSrc);
+			//_pnTrans.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
+			gblTransSrc.setConstraints(scPnl, new GBC(0,2).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			pnlTransSrc.add(scPnl);
+		GridBagLayout gblTransTgt = new GridBagLayout();
+		JPanel pnlTransTgt = new JPanel(gblTransTgt);
 			lbl = new JLabel(_it.getString("fFirst.Label.Trans.Filter_Tgt"));
-			gblTrans.setConstraints(lbl, new GBC(2,0).setIns(2)); //.setAnchor(GBC.WEST));
-			pnlTrans.add(lbl);
+			gblTransTgt.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
+			pnlTransTgt.add(lbl);
 			_cboTransFilterTgt = new JComboBox<CodeText>();
-			gblTrans.setConstraints(_cboTransFilterTgt, new GBC(3,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
-			pnlTrans.add(_cboTransFilterTgt);
-			_cmdTransFilterApply = new JButton(actFilterApply);
-			_cmdTransFilterApply.setText(_it.getString("fFirst.Button.FilterApply"));
-			gblTrans.setConstraints(_cmdTransFilterApply, new GBC(4,0).setIns(2));
-			pnlTrans.add(_cmdTransFilterApply);
-			_tabTrans = new JTable();
-			_pnTrans = new JScrollPane(_tabTrans);
-			_pnTrans.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
-			gblTrans.setConstraints(_pnTrans, new GBC(0,1).setGridSpan(5, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
-			pnlTrans.add(_pnTrans);
-		_tp.addTab(_it.getString("fFirst.TabbedPane.Translate"), pnlTrans);
+			gblTransTgt.setConstraints(_cboTransFilterTgt, new GBC(0,1).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			pnlTransTgt.add(_cboTransFilterTgt);
+			_txtTransTgt = new JTextArea();
+			scPnl = new JScrollPane(_txtTransTgt);
+			gblTransTgt.setConstraints(scPnl, new GBC(0,2).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			pnlTransTgt.add(scPnl);
+		_splHPnlTrans = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pnlTransSrc, pnlTransTgt);
+		_tp.addTab(_it.getString("fFirst.TabbedPane.Translate"), _splHPnlTrans);
+		///
+		/// Tab Words
+		// 
+		GridBagLayout gblWrd = new GridBagLayout();
+		JPanel pnlWrd = new JPanel(gblWrd);
+			lbl = new JLabel(_it.getString("fFirst.Label.Dic.Filter"));
+			gblWrd.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
+			pnlWrd.add(lbl);
+			_cboDicFilter = new JComboBox<CodeText>();
+			gblWrd.setConstraints(_cboDicFilter, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			pnlWrd.add(_cboDicFilter);
+			_tabWrd = new JTable();
+			JScrollPane scpWrd = new JScrollPane(_tabWrd);
+			scpWrd.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
+			gblWrd.setConstraints(scpWrd, new GBC(0,1).setGridSpan(2, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			pnlWrd.add(scpWrd);
+		_tp.addTab(_it.getString("fFirst.TabbedPane.Words"), pnlWrd);
 		///
 		/// Tab Dictionary
 		// 
 		GridBagLayout gblDic = new GridBagLayout();
 		JPanel pnlDic = new JPanel(gblDic);
-			lbl = new JLabel(_it.getString("fFirst.Label.Dic.Filter"));
-			gblDic.setConstraints(lbl, new GBC(0,0).setIns(2)); //.setAnchor(GBC.WEST));
-			pnlDic.add(lbl);
-			_cboDicFilter = new JComboBox<CodeText>();
-			gblDic.setConstraints(_cboDicFilter, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
-			pnlDic.add(_cboDicFilter);
-			_cmdDicFilterApply = new JButton(actDicFilterApply);
-			_cmdDicFilterApply.setText(_it.getString("fFirst.Button.FilterApply"));
-			gblDic.setConstraints(_cmdDicFilterApply, new GBC(2,0).setIns(2));
-			pnlDic.add(_cmdDicFilterApply);
 			_tabDic = new JTable();
 			JScrollPane scpDic = new JScrollPane(_tabDic);
 			scpDic.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
-			gblDic.setConstraints(scpDic, new GBC(0,1).setGridSpan(3, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			gblDic.setConstraints(scpDic, new GBC(0,0).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
 			pnlDic.add(scpDic);
 		_tp.addTab(_it.getString("fFirst.TabbedPane.Dictionary"), pnlDic);
 		///
 		/// Tab Language
 		// 
 		GridBagLayout gblLng = new GridBagLayout();
-		JPanel pnlLng = new JPanel(gblTrans);
+		JPanel pnlLng = new JPanel(gblLng);
 		_tp.addTab(_it.getString("fFirst.TabbedPane.Language"), pnlLng);
 			
 
@@ -181,31 +203,35 @@ public class fFirst extends JFrame
 
 		LoadProgramPreference();
 
-//		_cboFilterSrc.addItem(new CodeText(1, _it.getString("Text.DBM.Command.SELECT")));
-//		_cboFilterSrc.addItem(new CodeText(2, _it.getString("Text.DBM.Command.DeleteRows")));
-//		_cboFilterSrc.addItem(new CodeText(3, _it.getString("Text.DBM.Command.CreateTable")));
 		_cboTransFilterSrc.addActionListener(new ActionListener() 
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				if (((CodeText)_cboTransFilterSrc.getSelectedItem()).getCode() == 3)
-				{
-					//_lblDBMCondition.setText(_it.getString("Label.fCSV.DBM.TableName"));
-					//_pnResult.setBorder(BorderFactory.createTitledBorder(_it.getString("TitledBorder.fCSV.DBM.ColDef")));
-					//_tabDBMResult.setModel(new tmDBMColDef(_wld));
-					_tabTrans.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				}
-				else
-				{
-					//_lblDBMCondition.setText(_it.getString("Label.fFirst.DBM.Condition"));
-					//_pnResult.setBorder(BorderFactory.createTitledBorder(_it.getString("TitledBorder.fCSV.DBM.Result")));
-					//_tabDBMResult.setModel(new tmDBMResult(null));
-					_tabTrans.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				}
+				_doResultTransSrc();
+				_txtTransTgt.setText(CC.STR_EMPTY);
 			}
 		});
 
+		_cboTransFilterTgt.addActionListener(new ActionListener() 
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				_txtTransTgt.setText(CC.STR_EMPTY);
+				_doResultTransTgt();
+			}
+		});
+		
+		_lstTransSrc.addListSelectionListener(new ListSelectionListener() 
+		{
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) 
+			{
+				_doResultTransTgt();
+			}
+		});
+		
 		this.addWindowListener(new WindowAdapter() 
 		{
 			@Override
@@ -221,8 +247,19 @@ public class fFirst extends JFrame
 			@Override
 			public void stateChanged(ChangeEvent e) 
 			{
-				//if(_tp.getTitleAt(_tp.getSelectedIndex()).equals(_it.getString("TabbedPane.fFirst.DBMan")))
-				//	_showDBManager();
+				actFilterApply.actionPerformed(null);
+//				if (_tp.getSelectedIndex() == 0)
+//				{
+//					_doResultTrans();
+//				}
+//				else if (_tp.getSelectedIndex() == 1)
+//				{
+//					_doResultWordsOfDic();
+//				}
+//				else if (_tp.getSelectedIndex() == 2)
+//				{
+//					_doResultDictionaries();
+//				}
 			}
 		});
 		
@@ -230,8 +267,9 @@ public class fFirst extends JFrame
 
 	private void _load()
 	{
-		_fillCbo(_cboTransFilterSrc);
-		_fillCbo(_cboTransFilterTgt);
+		_it.FillCbo(_cboTransFilterSrc);
+		_it.FillCbo(_cboTransFilterTgt);
+		_it.FillCbo(_cboDicFilter);
 	}
 	
 	Action actSetDBConnection = new AbstractAction() 
@@ -261,16 +299,18 @@ public class fFirst extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			_doResult();
-		}
-	};
-
-	Action actDicFilterApply = new AbstractAction() 
-	{
-		@Override
-		public void actionPerformed(ActionEvent e) 
-		{
-			_doResult();
+			if (_tp.getTitleAt(_tp.getSelectedIndex()).equals(_it.getString("fFirst.TabbedPane.Translate")))
+			{
+				_doResultTransSrc();
+			}
+			if (_tp.getTitleAt(_tp.getSelectedIndex()).equals(_it.getString("fFirst.TabbedPane.Words")))
+			{
+				_doResultWordsOfDic();
+			}
+			if (_tp.getTitleAt(_tp.getSelectedIndex()).equals(_it.getString("fFirst.TabbedPane.Dictionary")))
+			{
+				_doResultDictionaries();
+			}
 		}
 	};
 
@@ -280,9 +320,22 @@ public class fFirst extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			fWord2Words dlg = new fWord2Words(_it);
-			dlg.setVisible(true);
-			
+			if (_tp.getSelectedIndex() == 0)
+			{
+				fWord2Words dlg = new fWord2Words(_it, ((CodeText)_cboTransFilterSrc.getSelectedItem()).getCode(), ((CodeText)_cboTransFilterTgt.getSelectedItem()).getCode());
+				dlg.setVisible(true);
+			}
+			else if (_tp.getSelectedIndex() == 1)
+			{
+				fWord dlg = new fWord(_it);
+				int selDic = ((CodeText)_cboDicFilter.getSelectedItem()).getCode();
+				dlg.SetSelectedDictionary(selDic);
+				dlg.setVisible(true);
+				if (dlg.isSavedNewWord())
+				{
+					_doResultWordsOfDic();
+				}
+			}
 		}
 	};
 	
@@ -292,9 +345,20 @@ public class fFirst extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			fWord dlg = new fWord(_it);
-			dlg.setVisible(true);
-			
+			if (_tp.getSelectedIndex() == 0)
+			{
+			}
+			else if (_tp.getSelectedIndex() == 1)
+			{
+				fWord dlg = new fWord(_it);
+				int selDic = ((CodeText)_cboDicFilter.getSelectedItem()).getCode();
+				dlg.SetSelectedDictionary(selDic);
+				dlg.setVisible(true);
+				if (dlg.isSavedNewWord())
+				{
+					_doResultWordsOfDic();
+				}
+			}
 		}
 	};
 	
@@ -307,38 +371,8 @@ public class fFirst extends JFrame
 		}
 	};
 	
-	private void _fillCbo(JComboBox<CodeText> aCbo)
-	{
-		Statement sqlCmd = null;
-		ResultSet rs = null;
-		try
-		{
-			sqlCmd = _it.get_wdb().getConn().createStatement();
-			rs = sqlCmd.executeQuery(_it.getSQL("Select.DictionaryList"));
-			while (rs.next())
-			{
-				aCbo.addItem(new CodeText(rs.getInt(1), rs.getString(2)));
-			}
-			rs.close();
-		}
-		catch (Exception ex)
-		{
-			errorNewLine(ex.getMessage());
-		}
-		finally
-		{
-			try
-			{
-				if (rs != null)
-					rs.close();
-				if (sqlCmd != null)
-					sqlCmd.close();
-			}
-			catch (Exception ex){}
-		}
-	}
 
-	private void _doResult()
+	private void _doResultTransSrc()
 	{
 		Statement sqlCmd = null;
 		ResultSet rs = null;
@@ -347,28 +381,15 @@ public class fFirst extends JFrame
 			Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			//sqlCmd = _it.get_wdb().getConn().createStatement();
 			int srcCode = ((CodeText)_cboTransFilterSrc.getSelectedItem()).getCode();
-			int tgtCode = ((CodeText)_cboTransFilterTgt.getSelectedItem()).getCode();
-			String strSelect = String.format(_it.getSQL("Select.WordTrans2Dic"), srcCode, tgtCode);
+			//int tgtCode = ((CodeText)_cboTransFilterTgt.getSelectedItem()).getCode();
+			//String strSelect = String.format(_it.getSQL("Select.WordTrans2Dic"), srcCode, tgtCode);
+			String strSelect = String.format(_it.getSQL("Select.WordTransSrc"), srcCode);
 			rs = stm.executeQuery(strSelect);
-			//tmResult tm = new tmResult(rs);
-
-			String[] cols = new String[rs.getMetaData().getColumnCount()];
-			for (int ii=0; ii < rs.getMetaData().getColumnCount(); ii++)
-				cols[ii] = rs.getMetaData().getColumnLabel(ii+1);
-			DefaultTableModel tm = new DefaultTableModel(cols, 0);
-			//tm.addColumn("1");
-			//tm.addColumn("2");
-			//tm.addColumn("3");
+			_lstModel.clear();
 			while (rs.next())
 			{
-				for (int ii=0; ii < cols.length; ii++)
-					cols[ii] = rs.getString(ii+1);
-				tm.addRow(cols);
-				//tm.addRow(new Object[] {rs.getString(1), rs.getString(2), rs.getString(3)});
+				_lstModel.addElement(new CodeText(rs.getInt(1), rs.getString(2)));
 			}
-			
-			_tabTrans.setModel(tm);
-			_tabTrans.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			//infoNewLine(_wld.getString("Text.Message.ExecutedCommand")); 
 			rs.close();
 		}
@@ -389,6 +410,128 @@ public class fFirst extends JFrame
 		}
 	}
 
+	private void _doResultWordsOfDic()
+	{
+		Statement sqlCmd = null;
+		ResultSet rs = null;
+		try
+		{
+			Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			int dicCode = ((CodeText)_cboDicFilter.getSelectedItem()).getCode();
+			String strSelect = String.format(_it.getSQL("Select.WordsOfDic"), dicCode);
+			rs = stm.executeQuery(strSelect);
+			_fillTabRS(rs, _tabWrd);
+			//infoNewLine(_wld.getString("Text.Message.ExecutedCommand")); 
+			rs.close();
+		}
+		catch (Exception ex)
+		{
+			errorNewLine(ex.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				if (rs != null)
+					rs.close();
+				if (sqlCmd != null)
+					sqlCmd.close();
+			}
+			catch (Exception ex){}
+		}
+	}
+
+	
+	private void _doResultTransTgt()
+	{
+		Statement sqlCmd = null;
+		ResultSet rs = null;
+		try
+		{
+			Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			int codeSrc = _lstTransSrc.getSelectedValue().getCode();
+			int codeDicTgt = ((CodeText)_cboTransFilterTgt.getSelectedItem()).getCode();
+			String strSelect = String.format(_it.getSQL("Select.WordTransTgt"), codeSrc, codeDicTgt);
+			rs = stm.executeQuery(strSelect);
+			StringBuilder txt = new StringBuilder();
+			while (rs.next())
+			{
+				txt.append(rs.getString(1));
+				if (rs.getString(2) != null && rs.getString(2).length() > 0)
+				{
+					txt.append(" [");
+					txt.append(rs.getString(2));
+					txt.append("]");
+				}
+				txt.append(System.getProperty("line.separator"));
+			}
+			_txtTransTgt.setText(txt.toString());
+			//infoNewLine(_wld.getString("Text.Message.ExecutedCommand")); 
+			rs.close();
+		}
+		catch (Exception ex)
+		{
+			_txtTransTgt.setText(CC.STR_EMPTY);
+			errorNewLine(ex.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				if (rs != null)
+					rs.close();
+				if (sqlCmd != null)
+					sqlCmd.close();
+			}
+			catch (Exception ex){}
+		}
+	}
+	
+	private void _doResultDictionaries()
+	{
+		Statement sqlCmd = null;
+		ResultSet rs = null;
+		try
+		{
+			Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			rs = stm.executeQuery(_it.getSQL("Select.Dictionaries"));
+			_fillTabRS(rs, _tabDic);
+			//infoNewLine(_wld.getString("Text.Message.ExecutedCommand")); 
+			rs.close();
+		}
+		catch (Exception ex)
+		{
+			errorNewLine(ex.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				if (rs != null)
+					rs.close();
+				if (sqlCmd != null)
+					sqlCmd.close();
+			}
+			catch (Exception ex){}
+		}
+	}
+	
+	private void _fillTabRS(ResultSet aRS, JTable aJTab) throws SQLException
+	{
+		String[] cols = new String[aRS.getMetaData().getColumnCount()];
+		for (int ii=0; ii < aRS.getMetaData().getColumnCount(); ii++)
+			cols[ii] = aRS.getMetaData().getColumnLabel(ii+1);
+		DefaultTableModel tm = new DefaultTableModel(cols, 0);
+		while (aRS.next())
+		{
+			for (int ii=0; ii < cols.length; ii++)
+				cols[ii] = aRS.getString(ii+1);
+			tm.addRow(cols);
+		}
+		
+		aJTab.setModel(tm);
+		aJTab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+	}
 	
  	private void LoadProgramPreference()
 	{

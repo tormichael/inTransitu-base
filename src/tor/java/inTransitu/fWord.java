@@ -9,6 +9,9 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
@@ -17,9 +20,11 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -28,10 +33,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import JCommonTools.AsRegister;
 import JCommonTools.CodeText;
+import JCommonTools.ComboBoxTools;
 import JCommonTools.GBC;
 import JCommonTools.Panel.pnImage;
 
-public class fWord  extends JFrame
+public class fWord  extends JDialog
 {
 	private inTransitu _it;
 	
@@ -46,10 +52,25 @@ public class fWord  extends JFrame
 	private JButton _cmdSave;
 	private JButton _cmdCancel;
 
+	private boolean _isSavedNew;
+	
+	public boolean isSavedNewWord()
+	{
+		return _isSavedNew;
+	}
+	public void SetSelectedDictionary(int aCode)
+	{
+		ComboBoxTools.SetSelected2Code(_cboDictionary, aCode);
+		_cboDictionary.setEnabled(false);
+	}
+	
 	public fWord(inTransitu aIT)
 	{
 		_it = aIT;
-		
+
+		this.setModal(true);
+		_isSavedNew = false;
+	
 		GridBagLayout gblMain = new GridBagLayout();
 		JPanel pnlMain = new JPanel(gblMain);
 			///// LEFT //////////////////////////////////////////////////////////////
@@ -125,7 +146,8 @@ public class fWord  extends JFrame
 
 		
 		LoadProgramPreference();
-	
+		_it.FillCbo(_cboDictionary);
+		
 		this.addWindowListener(new WindowAdapter() 
 		{
 			@Override
@@ -186,8 +208,32 @@ public class fWord  extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent arg0) 
 		{
-			// TODO Auto-generated method stub
+			PreparedStatement stm = null;
+			try
+			{
+				stm = _it.get_wdb().getConn().prepareStatement(_it.getSQL("Insert.Word"));
+				stm.setInt(1, ((CodeText)_cboDictionary.getSelectedItem()).getCode());
+				stm.setString(2, _txtWord.getText());
+				stm.setString(3, _txtPath2Image.getText());
+				stm.setString(4, _txtPath2Sound.getText());
+				stm.executeUpdate();
+			}
+			catch (Exception ex)
+			{
+				JOptionPane.showMessageDialog(fWord.this, ex.getMessage());
+			}
+			finally
+			{
+				try
+				{
+					if (stm != null)
+						stm.close();
+				}
+				catch (Exception ex){}
+			}
 			
+			_isSavedNew = true;
+			setVisible(false);
 		}
 	};
 	
@@ -197,7 +243,7 @@ public class fWord  extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			// TODO Auto-generated method stub
+			setVisible(false);
 			
 		}
 	};
@@ -207,7 +253,9 @@ public class fWord  extends JFrame
 		_it.get_wdb().LoadDBConnectioParam2Reg(inTransitu.PREFERENCE_PATH);
 
 		Preferences node = Preferences.userRoot().node(inTransitu.PREFERENCE_PATH+"/fWord" );
-		AsRegister.LoadFrameStateSizeLocation(node, this);
+		//AsRegister.LoadFrameStateSizeLocation(node, this);
+		AsRegister.LoadWindowLocation(node, this);
+		AsRegister.LoadWindowSize(node, this);
 		//_splVPanel.setDividerLocation(node.getInt("SplitDividerLocation", 100));
 		//_splvDBMan.setDividerLocation(node.getInt("SplitDBMan", 100));
 		//_splHPanel.setDividerLocation(node.getInt("SplitHDividerLocation", 100));
@@ -224,7 +272,9 @@ public class fWord  extends JFrame
 	{
 		Preferences node = Preferences.userRoot().node(inTransitu.PREFERENCE_PATH+"/fWord" );
 		
-		AsRegister.SaveFrameStateSizeLocation(node, this);
+		//AsRegister.SaveFrameStateSizeLocation(node, this);
+		AsRegister.SaveWindowLocation(node, this);
+		AsRegister.SaveWindowSize(node, this);
 		
 		//node.putInt("SplitDBMan", _splvDBMan.getDividerLocation());
 		//node.putInt("SplitHDividerLocation", _splHPanel.getDividerLocation());

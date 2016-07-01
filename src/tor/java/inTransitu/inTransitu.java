@@ -3,11 +3,16 @@ package tor.java.inTransitu;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 
 import JCommonTools.AsRegister;
+import JCommonTools.CC;
+import JCommonTools.CodeText;
 import JCommonTools.DB.DBWork;
 
 
@@ -107,6 +112,41 @@ public class inTransitu
 		_wdb =new DBWork();
 		_reg = new AsRegister();
 	}
+	
+	public String FillCbo(JComboBox<CodeText> aCbo)
+	{
+		String ret = CC.STR_EMPTY;
+		Statement sqlCmd = null;
+		ResultSet rs = null;
+		try
+		{
+			sqlCmd = get_wdb().getConn().createStatement();
+			rs = sqlCmd.executeQuery(getSQL("Select.DictionaryList"));
+			while (rs.next())
+			{
+				aCbo.addItem(new CodeText(rs.getInt(1), rs.getString(2)));
+			}
+			rs.close();
+		}
+		catch (Exception ex)
+		{
+			ret =ex.getMessage();
+		}
+		finally
+		{
+			try
+			{
+				if (rs != null)
+					rs.close();
+				if (sqlCmd != null)
+					sqlCmd.close();
+			}
+			catch (Exception ex){}
+		}
+		
+		return ret;
+	}
+	
 	
 	/**
 	 * @param args
