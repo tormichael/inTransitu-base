@@ -20,11 +20,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import JCommonTools.AsRegister;
+import JCommonTools.AutoCompleteComboBox;
 import JCommonTools.CC;
 import JCommonTools.CodeText;
 import JCommonTools.ComboBoxTools;
@@ -36,9 +38,11 @@ public class fWord2Words  extends JFrame
 	private int _dicSrc;
 	private int _dicTgt;
 	
-	private JComboBox<CodeText> _cboWordSrc;
 	private DefaultComboBoxModel<CodeText> _cbmWordSrc;
-	private JTable	_tabWordsTgt;
+	private AutoCompleteComboBox<CodeText> _cboWordSrc;
+	private DefaultComboBoxModel<CodeText> _cbmWordTgt;
+	private JTabbedPane _tpTgt;
+	private AutoCompleteComboBox<CodeText>[] _cboWordTgt;
 	private JTextArea _txtWordTgt;
 	private JButton _cmdSave;
 	private JButton _cmdCancel;
@@ -55,14 +59,23 @@ public class fWord2Words  extends JFrame
 			gblMain.setConstraints(lbl, new GBC(0,0).setIns(2));
 			pnlMain.add(lbl);
 			_cbmWordSrc = new DefaultComboBoxModel<CodeText>();
-			_cboWordSrc = new JComboBox<CodeText>(_cbmWordSrc);
-			gblMain.setConstraints(_cboWordSrc, new GBC(1,0).setIns(2).setGridSpan(2, 1).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			_cboWordSrc = new  AutoCompleteComboBox<CodeText>();
+			_cboWordSrc.setModel(_cbmWordSrc);
+			_cboWordSrc.setEditable(true);
+			gblMain.setConstraints(_cboWordSrc, new GBC(1,0).setIns(2).setGridSpan(1, 1).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
 			pnlMain.add(_cboWordSrc);
-			_tabWordsTgt = new JTable();
+			JButton cmd = new JButton(actAddWordSrc);
+			actAddWordSrc.putValue(Action.NAME, "+");
+			gblMain.setConstraints(cmd, new GBC(2,0).setIns(2));
+			pnlMain.add(cmd);
+			cmd = new JButton(actEditWordSrc);
+			actEditWordSrc.putValue(Action.SMALL_ICON, _it.getImageIcon("edit.png"));
+			gblMain.setConstraints(cmd, new GBC(3,0).setIns(2));
+			pnlMain.add(cmd);
+			_tpTgt = new JTabbedPane();
 			_txtWordTgt = new JTextArea();
-			JSplitPane spp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, _tabWordsTgt, _txtWordTgt);
-			gblMain.setConstraints(spp, new GBC(0,1).setIns(2).setGridSpan(3, 1).setFill(GBC.BOTH).setWeight(1.0, 1.0));
-			pnlMain.add(spp);
+			gblMain.setConstraints(_tpTgt, new GBC(0,1).setIns(2).setGridSpan(5, 1).setFill(GBC.BOTH).setWeight(1.0, 1.0));
+			pnlMain.add(_tpTgt);
 			//////////////////////////////////////////////////////////////////////////
 			_cmdSave = new JButton(actSave);
 			_cmdSave.setText(_it.getString("common.Button.Save"));
@@ -86,6 +99,8 @@ public class fWord2Words  extends JFrame
 				super.windowClosing(e);
 			}
 		});
+		
+		_load();
 	}
 	
 	private void _load()
@@ -102,6 +117,7 @@ public class fWord2Words  extends JFrame
 		while (rs.next())
 		{
 			//_cboWordSrc.addElement(new CodeText(rs.getInt(1),rs.getString(2)));
+			_cbmWordSrc.addElement(new CodeText(rs.getInt(1),rs.getString(2)));
 		}
 		
 		rs.close();
@@ -121,14 +137,35 @@ public class fWord2Words  extends JFrame
 		}
 	}
 	
-	Action actSave2 = new AbstractAction() 
+	Action actAddWordSrc = new AbstractAction() 
 	{
-		
 		@Override
 		public void actionPerformed(ActionEvent arg0) 
 		{
-			// TODO Auto-generated method stub
-			
+		}
+	};
+	
+	Action actEditWordSrc = new AbstractAction() 
+	{
+		@Override
+		public void actionPerformed(ActionEvent arg0) 
+		{
+		}
+	};
+	
+	Action actAddWordTgt = new AbstractAction() 
+	{
+		@Override
+		public void actionPerformed(ActionEvent arg0) 
+		{
+		}
+	};
+	
+	Action actEditWordTgt = new AbstractAction() 
+	{
+		@Override
+		public void actionPerformed(ActionEvent arg0) 
+		{
 		}
 	};
 	

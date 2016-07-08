@@ -21,6 +21,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -43,6 +44,7 @@ import javax.swing.tree.TreeModel;
 import JCommonTools.AsRegister;
 import JCommonTools.CC;
 import JCommonTools.CodeText;
+import JCommonTools.ComboBoxTools;
 import JCommonTools.GBC;
 import JCommonTools.TableTools;
 import JCommonTools.DB.dDBConnection;
@@ -164,6 +166,7 @@ public class fFirst extends JFrame
 			gblWrd.setConstraints(_cboDicFilter, new GBC(1,0).setIns(2).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
 			pnlWrd.add(_cboDicFilter);
 			_tabWrd = new JTable();
+			//_tabWrd.setEnabled(false);
 			JScrollPane scpWrd = new JScrollPane(_tabWrd);
 			scpWrd.setBorder(BorderFactory.createTitledBorder(_it.getString("fFirst.TitledBorder.Result")));
 			gblWrd.setConstraints(scpWrd, new GBC(0,1).setGridSpan(2, 1).setIns(2).setFill(GBC.BOTH).setWeight(1.0, 1.0));
@@ -223,6 +226,15 @@ public class fFirst extends JFrame
 			}
 		});
 		
+		_cboDicFilter.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				_doResultWordsOfDic();
+			}
+		});
+		
 		_lstTransSrc.addListSelectionListener(new ListSelectionListener() 
 		{
 			@Override
@@ -267,7 +279,7 @@ public class fFirst extends JFrame
 
 	private void _load()
 	{
-		_it.FillCbo(_cboTransFilterSrc);
+		_it.FillCbo(_cboTransFilterSrc, "WHERE dicType=1");
 		_it.FillCbo(_cboTransFilterTgt);
 		_it.FillCbo(_cboDicFilter);
 	}
@@ -353,6 +365,11 @@ public class fFirst extends JFrame
 				fWord dlg = new fWord(_it);
 				int selDic = ((CodeText)_cboDicFilter.getSelectedItem()).getCode();
 				dlg.SetSelectedDictionary(selDic);
+				int wrdId = 0;
+				try { wrdId =  Integer.parseInt(_tabWrd.getModel().getValueAt(_tabWrd.getSelectedRow(), 0).toString()); }
+				catch(Exception ex) {}
+				if (wrdId > 0)
+					dlg.Load(wrdId);
 				dlg.setVisible(true);
 				if (dlg.isSavedNewWord())
 				{
@@ -368,6 +385,43 @@ public class fFirst extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
+			if (_tp.getSelectedIndex() == 0)
+			{
+			}
+			else if (_tp.getSelectedIndex() == 1)
+			{
+				int wrdId = 0;
+				try { wrdId =  Integer.parseInt(_tabWrd.getModel().getValueAt(_tabWrd.getSelectedRow(), 0).toString()); }
+				catch(Exception ex) {}
+				if (wrdId > 0)
+				{
+					String wrd = _tabWrd.getModel().getValueAt(_tabWrd.getSelectedRow(), 1).toString();
+					int response = JOptionPane.showConfirmDialog(fFirst.this, String.format(_it.getString("Text.Question.Delete.Word"), wrd));
+					if (response == JOptionPane.YES_OPTION)
+					{
+						Statement sqlCmd = null;
+						try
+						{
+							Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+							stm.executeUpdate(String.format(_it.getSQL("Delete.Word"), wrdId));
+							_doResultWordsOfDic();
+						}
+						catch (Exception ex)
+						{
+							errorNewLine(ex.getMessage());
+						}
+						finally
+						{
+							try
+							{
+								if (sqlCmd != null)
+									sqlCmd.close();
+							}
+							catch (Exception ex){}
+						}	
+					}
+				}
+			}
 		}
 	};
 	
@@ -549,9 +603,21 @@ public class fFirst extends JFrame
 		//TableTools.SetColumnsWidthFromString(_tabFields, node.get("TabColWidth_Fields", CC.STR_EMPTY));
 		//TableTools.SetColumnsWidthFromString(_tabColCorr, node.get("TabColWidth_ColCorr", CC.STR_EMPTY));
 		
-		
 		if (_it.get_wdb().IsDBConnectionParamDefined())
 			_load();
+
+		int ctc = node.getInt("CurrentTransDicSrc", 0);
+		if (ctc > 0)
+			ComboBoxTools.SetSelected2Code(_cboTransFilterSrc, ctc);
+
+		ctc = node.getInt("CurrentTransDicTgt", 0);
+		if (ctc > 0)
+			ComboBoxTools.SetSelected2Code(_cboTransFilterTgt, ctc);
+
+		ctc = node.getInt("CurrentDicFilter", 0);
+		if (ctc > 0)
+			ComboBoxTools.SetSelected2Code(_cboDicFilter, ctc);
+	
 	}
 	
 	private void SaveProgramPreference()
@@ -561,6 +627,16 @@ public class fFirst extends JFrame
 		AsRegister.SaveFrameStateSizeLocation(node, this);
 		
 		node.putInt("SplitDividerLocation", _splVPanel.getDividerLocation());
+		CodeText ct = (CodeText)_cboTransFilterSrc.getSelectedItem();
+		if (ct != null && ct.getCode() > 0)
+			node.putInt("CurrentTransDicSrc", ct.getCode());
+		ct = (CodeText)_cboTransFilterTgt.getSelectedItem();
+		if (ct != null && ct.getCode() > 0)
+			node.putInt("CurrentTransDicTgt", ct.getCode());
+		ct = (CodeText)_cboDicFilter.getSelectedItem();
+		if (ct != null && ct.getCode() > 0)
+			node.putInt("CurrentDicFilter", ct.getCode());
+		
 		//node.putInt("SplitDBMan", _splvDBMan.getDividerLocation());
 		//node.putInt("SplitHDividerLocation", _splHPanel.getDividerLocation());
 		//if (_txtCSVFileName.getText().length() > 0)

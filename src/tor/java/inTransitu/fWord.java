@@ -40,6 +40,7 @@ import JCommonTools.Panel.pnImage;
 public class fWord  extends JDialog
 {
 	private inTransitu _it;
+	private int _wrdId;
 	
 	private JComboBox<CodeText> _cboDictionary;
 	private JTextArea _txtWord;
@@ -58,15 +59,53 @@ public class fWord  extends JDialog
 	{
 		return _isSavedNew;
 	}
+	
 	public void SetSelectedDictionary(int aCode)
 	{
 		ComboBoxTools.SetSelected2Code(_cboDictionary, aCode);
 		_cboDictionary.setEnabled(false);
 	}
 	
+	public void Load(int aWrdId)
+	{
+		Statement sqlCmd = null;
+		ResultSet rs = null;
+		try
+		{
+			Statement stm = _it.get_wdb().getConn().createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			String strSelect = String.format(_it.getSQL("Select.Word"), aWrdId);
+			rs = stm.executeQuery(strSelect);
+			//infoNewLine(_wld.getString("Text.Message.ExecutedCommand")); 
+			if (rs.next())
+			{
+				_txtWord.setText(rs.getString(1));
+				_txtPath2Image.setText(rs.getString(2));
+				_txtPath2Sound.setText(rs.getString(3));
+
+				_wrdId = aWrdId;
+			}
+		}
+		catch (Exception ex)
+		{
+			//errorNewLine(ex.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				if (rs != null)
+					rs.close();
+				if (sqlCmd != null)
+					sqlCmd.close();
+			}
+			catch (Exception ex){}
+		}	
+	}
+	
 	public fWord(inTransitu aIT)
 	{
 		_it = aIT;
+		_wrdId = 0;
 
 		this.setModal(true);
 		_isSavedNew = false;
@@ -202,6 +241,7 @@ public class fWord  extends JDialog
 		}
 	};
 	
+
 	Action actSave = new AbstractAction() 
 	{
 		
@@ -211,7 +251,14 @@ public class fWord  extends JDialog
 			PreparedStatement stm = null;
 			try
 			{
-				stm = _it.get_wdb().getConn().prepareStatement(_it.getSQL("Insert.Word"));
+				if (_wrdId > 0)
+				{
+					stm = _it.get_wdb().getConn().prepareStatement(String.format(_it.getSQL("Update.Word"), _wrdId));
+				}
+				else
+				{
+					stm = _it.get_wdb().getConn().prepareStatement(_it.getSQL("Insert.Word"));
+				}
 				stm.setInt(1, ((CodeText)_cboDictionary.getSelectedItem()).getCode());
 				stm.setString(2, _txtWord.getText());
 				stm.setString(3, _txtPath2Image.getText());

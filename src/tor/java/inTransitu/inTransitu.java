@@ -115,13 +115,17 @@ public class inTransitu
 	
 	public String FillCbo(JComboBox<CodeText> aCbo)
 	{
+		return FillCbo(aCbo, CC.STR_EMPTY);
+	}
+	public String FillCbo(JComboBox<CodeText> aCbo, String aWhere)
+	{
 		String ret = CC.STR_EMPTY;
 		Statement sqlCmd = null;
 		ResultSet rs = null;
 		try
 		{
 			sqlCmd = get_wdb().getConn().createStatement();
-			rs = sqlCmd.executeQuery(getSQL("Select.DictionaryList"));
+			rs = sqlCmd.executeQuery(String.format(getSQL("Select.DictionaryList"), aWhere));
 			while (rs.next())
 			{
 				aCbo.addItem(new CodeText(rs.getInt(1), rs.getString(2)));
