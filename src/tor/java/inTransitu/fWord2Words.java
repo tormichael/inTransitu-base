@@ -1,6 +1,7 @@
 package tor.java.inTransitu;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -62,15 +63,20 @@ public class fWord2Words  extends JFrame
 			_cboWordSrc = new  AutoCompleteComboBox<CodeText>();
 			_cboWordSrc.setModel(_cbmWordSrc);
 			_cboWordSrc.setEditable(true);
-			gblMain.setConstraints(_cboWordSrc, new GBC(1,0).setIns(2).setGridSpan(1, 1).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
+			gblMain.setConstraints(_cboWordSrc, new GBC(1,0).setIns(2).setGridSpan(2, 1).setFill(GBC.HORIZONTAL).setWeight(1.0, 0.0));
 			pnlMain.add(_cboWordSrc);
 			JButton cmd = new JButton(actAddWordSrc);
-			actAddWordSrc.putValue(Action.NAME, "+");
-			gblMain.setConstraints(cmd, new GBC(2,0).setIns(2));
+			int hh = _cboWordSrc.getPreferredSize().height+10;
+			cmd.setPreferredSize(new Dimension(hh,hh));
+			//cmd.setPreferredSize(new Dimension(30, 30));
+			//actAddWordSrc.putValue(Action.NAME, "+");
+			actAddWordSrc.putValue(Action.SMALL_ICON, _it.getImageIcon("add.png"));
+			gblMain.setConstraints(cmd, new GBC(3,0).setIns(2));
 			pnlMain.add(cmd);
 			cmd = new JButton(actEditWordSrc);
+			cmd.setPreferredSize(new Dimension(hh,hh));
 			actEditWordSrc.putValue(Action.SMALL_ICON, _it.getImageIcon("edit.png"));
-			gblMain.setConstraints(cmd, new GBC(3,0).setIns(2));
+			gblMain.setConstraints(cmd, new GBC(4,0).setIns(2));
 			pnlMain.add(cmd);
 			_tpTgt = new JTabbedPane();
 			_txtWordTgt = new JTextArea();
